@@ -11,6 +11,9 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
+import Documents from "./pages/Documents";
+import Upload from "./pages/Upload";
+import Compliance from "./pages/Compliance";
 import OperationsDepartment from "./pages/departments/Operations";
 import EngineeringDepartment from "./pages/departments/Engineering";
 import FinanceDepartment from "./pages/departments/Finance";
@@ -40,6 +43,21 @@ const App = () => (
             <Route path="/analytics" element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/documents" element={
+              <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload" element={
+              <ProtectedRoute>
+                <Upload />
+              </ProtectedRoute>
+            } />
+            <Route path="/compliance" element={
+              <ProtectedRoute>
+                <Compliance />
               </ProtectedRoute>
             } />
             <Route path="/departments/operations" element={
