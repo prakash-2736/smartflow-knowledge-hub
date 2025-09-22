@@ -25,6 +25,9 @@ import {
   Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { processAndStoreDocument } from "@/lib/processing";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface UploadFile {
   id: string;
@@ -78,6 +81,8 @@ export const DocumentUpload = ({
   onCancel,
   className
 }: DocumentUploadProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("local");
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [metadata, setMetadata] = useState<UploadMetadata>({
@@ -147,21 +152,27 @@ export const DocumentUpload = ({
     ));
   };
 
-  const simulateUpload = async (file: UploadFile) => {
-    updateFileStatus(file.id, "uploading");
-    
-    // Simulate upload progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      updateFileStatus(file.id, "uploading", progress);
+  const realUpload = async (fileEntry: UploadFile) => {
+    try {
+      updateFileStatus(fileEntry.id, "uploading", 10);
+      const { document, summary } = await processAndStoreDocument({
+        file: fileEntry.file,
+        title: metadata.title || fileEntry.file.name,
+        department: metadata.department,
+        priority: metadata.priority,
+        description: metadata.description,
+        tags: metadata.tags,
+        userId: user?.id,
+      });
+      updateFileStatus(fileEntry.id, "processing", 80);
+      updateFileStatus(fileEntry.id, "completed", 100);
+      toast({ title: "Uploaded", description: `${document.title} processed${summary ? ' with AI summary' : ''}.` });
+      return document;
+    } catch (e: any) {
+      updateFileStatus(fileEntry.id, "error", undefined, e?.message || 'Upload failed');
+      toast({ title: "Upload failed", description: e?.message || 'Unknown error', variant: 'destructive' });
+      throw e;
     }
-    
-    updateFileStatus(file.id, "processing");
-    
-    // Simulate processing
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    updateFileStatus(file.id, "completed");
   };
 
   const handleUpload = async () => {
@@ -170,14 +181,15 @@ export const DocumentUpload = ({
     setIsUploading(true);
     
     try {
-      // Upload all files
-      const uploadPromises = uploadFiles
-        .filter(file => file.status === "pending")
-        .map(file => simulateUpload(file));
-      
-      await Promise.all(uploadPromises);
-      
-      onUploadComplete?.(uploadFiles);
+      if (!metadata.department) {
+        throw new Error('Please select a department before uploading');
+      }
+      const results = await Promise.all(
+        uploadFiles.filter(f => f.status === 'pending').map(f => realUpload(f))
+      );
+      // Return processed documents to caller
+      // @ts-expect-error broadened payload for convenience
+      onUploadComplete?.(results);
     } catch (error) {
       console.error("Upload failed:", error);
     } finally {

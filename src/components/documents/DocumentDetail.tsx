@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { listProcessingEvents } from "@/integrations/supabase/processing";
 
 interface Document {
   id: string;
@@ -57,10 +58,10 @@ interface Document {
   description?: string;
   aiSummary?: string;
   keyInsights?: Array<{
-    type: "deadline" | "risk" | "action" | "person";
+    type?: "deadline" | "risk" | "action" | "person";
     content: string;
-    importance: "low" | "medium" | "high";
-  }>;
+    importance?: "low" | "medium" | "high";
+  }> | string[];
   relatedDocuments?: Array<{
     id: string;
     title: string;
@@ -171,6 +172,15 @@ export const DocumentDetail = ({
 }: DocumentDetailProps) => {
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [processingEvents, setProcessingEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await listProcessingEvents(document.id);
+      setProcessingEvents(data);
+    };
+    load();
+  }, [document.id]);
 
   const handleAddComment = () => {
     if (newComment.trim()) {
@@ -358,32 +368,39 @@ export const DocumentDetail = ({
                 </CardContent>
               </Card>
 
-              {document.keyInsights && document.keyInsights.length > 0 && (
+              {document.keyInsights && (document.keyInsights as any).length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Key Insights</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {document.keyInsights.map((insight, index) => (
-                        <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
-                          <div className="flex-shrink-0 mt-0.5">
-                            {getInsightIcon(insight.type)}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium capitalize">{insight.type}</span>
-                              <Badge 
-                                variant={insight.importance === "high" ? "destructive" : insight.importance === "medium" ? "default" : "secondary"}
-                                className="text-xs"
-                              >
-                                {insight.importance}
-                              </Badge>
+                      {(document.keyInsights as any[]).map((insight: any, index: number) => {
+                        const content = typeof insight === 'string' ? insight : insight.content;
+                        const type = typeof insight === 'string' ? undefined : insight.type;
+                        const importance = typeof insight === 'string' ? undefined : insight.importance;
+                        return (
+                          <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
+                            <div className="flex-shrink-0 mt-0.5">
+                              {getInsightIcon(type || 'action')}
                             </div>
-                            <p className="text-sm text-muted-foreground">{insight.content}</p>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                {type && <span className="font-medium capitalize">{type}</span>}
+                                {importance && (
+                                  <Badge 
+                                    variant={importance === "high" ? "destructive" : importance === "medium" ? "default" : "secondary"}
+                                    className="text-xs"
+                                  >
+                                    {importance}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">{content}</p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -510,7 +527,7 @@ export const DocumentDetail = ({
           </Card>
 
           {/* Processing History */}
-          {document.processingHistory && document.processingHistory.length > 0 && (
+          {(document.processingHistory && document.processingHistory.length > 0) || processingEvents.length > 0 ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -520,13 +537,18 @@ export const DocumentDetail = ({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {document.processingHistory.map((entry, index) => (
+                  {[...(document.processingHistory || []), ...processingEvents.map(ev => ({
+                    action: ev.stage,
+                    user: 'System',
+                    timestamp: new Date(ev.created_at),
+                    details: ev.message,
+                  }))].sort((a, b) => (b.timestamp as any) - (a.timestamp as any)).map((entry, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{entry.action}</p>
                         <p className="text-xs text-muted-foreground">
-                          by {entry.user} • {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
+                          {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
                         </p>
                         {entry.details && (
                           <p className="text-xs text-muted-foreground mt-1">{entry.details}</p>
@@ -537,7 +559,7 @@ export const DocumentDetail = ({
                 </div>
               </CardContent>
             </Card>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

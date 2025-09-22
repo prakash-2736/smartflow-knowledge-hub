@@ -19,6 +19,8 @@ export type Database = {
           id: string
           title: string
           description: string | null
+          ai_summary: string | null
+          ai_key_insights: string[] | null
           source: string | null
           file_path: string | null
           file_type: string | null
@@ -37,6 +39,8 @@ export type Database = {
           id?: string
           title: string
           description?: string | null
+          ai_summary?: string | null
+          ai_key_insights?: string[] | null
           source?: string | null
           file_path?: string | null
           file_type?: string | null
@@ -55,6 +59,8 @@ export type Database = {
           id?: string
           title?: string
           description?: string | null
+          ai_summary?: string | null
+          ai_key_insights?: string[] | null
           source?: string | null
           file_path?: string | null
           file_type?: string | null

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { DocumentList } from "@/components/documents/DocumentList";
 import { DocumentDetail } from "@/components/documents/DocumentDetail";
@@ -10,203 +10,12 @@ import {
   FileText, 
   Upload, 
   Shield, 
-  ArrowLeft,
   Plus
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-// Mock data for documents
-const mockDocuments = [
-  {
-    id: "1",
-    title: "Metro Station Safety Inspection Report - Terminal 1",
-    type: "PDF",
-    size: 2048576, // 2MB
-    department: "Operations",
-    priority: "high" as const,
-    status: "in_review" as const,
-    uploadedBy: "John Smith",
-    uploadedAt: new Date("2024-01-15T14:30:00"),
-    assignedTo: "Sarah Johnson",
-    commentsCount: 3,
-    tags: ["safety", "inspection", "compliance"],
-    thumbnail: undefined,
-    version: 1,
-    lastModified: new Date("2024-01-15T14:30:00"),
-    description: "Comprehensive safety inspection report for Terminal 1 station covering all safety systems and protocols.",
-    aiSummary: "This document contains a detailed safety inspection report for Terminal 1 of the metro system. Key findings include proper functioning of emergency systems, compliance with safety protocols, and recommendations for minor improvements in signage and lighting.",
-    keyInsights: [
-      {
-        type: "deadline" as const,
-        content: "Follow-up inspection required within 30 days",
-        importance: "high" as const
-      },
-      {
-        type: "risk" as const,
-        content: "Minor lighting issues identified in platform area",
-        importance: "medium" as const
-      },
-      {
-        type: "action" as const,
-        content: "Schedule maintenance for emergency exit signs",
-        importance: "medium" as const
-      }
-    ],
-    relatedDocuments: [
-      { id: "2", title: "Emergency Procedures Manual", type: "PDF" },
-      { id: "3", title: "Safety Equipment Checklist", type: "Excel" }
-    ],
-    processingHistory: [
-      {
-        action: "Document uploaded",
-        user: "John Smith",
-        timestamp: new Date("2024-01-15T14:30:00"),
-        details: "Initial upload of safety inspection report"
-      },
-      {
-        action: "AI processing started",
-        user: "System",
-        timestamp: new Date("2024-01-15T14:31:00"),
-        details: "Document sent for AI analysis and summarization"
-      },
-      {
-        action: "Assigned for review",
-        user: "Sarah Johnson",
-        timestamp: new Date("2024-01-15T15:00:00"),
-        details: "Document assigned to safety team for review"
-      }
-    ]
-  },
-  {
-    id: "2",
-    title: "Monthly Financial Statement - January 2024",
-    type: "Excel",
-    size: 1024000, // 1MB
-    department: "Finance",
-    priority: "medium" as const,
-    status: "approved" as const,
-    uploadedBy: "Jennifer Lee",
-    uploadedAt: new Date("2024-01-14T10:15:00"),
-    commentsCount: 1,
-    tags: ["financial", "monthly", "report"],
-    thumbnail: undefined,
-    version: 2,
-    lastModified: new Date("2024-01-14T10:15:00"),
-    description: "Monthly financial statement covering all revenue, expenses, and operational costs for January 2024.",
-    aiSummary: "Financial statement shows strong revenue growth of 12% compared to previous month, with operational costs remaining stable. Key highlights include increased ridership revenue and successful cost optimization initiatives.",
-    keyInsights: [
-      {
-        type: "action" as const,
-        content: "Review budget allocation for Q2",
-        importance: "high" as const
-      }
-    ],
-    relatedDocuments: [],
-    processingHistory: []
-  },
-  {
-    id: "3",
-    title: "HR Policy Update - Remote Work Guidelines",
-    type: "Word",
-    size: 512000, // 512KB
-    department: "HR",
-    priority: "urgent" as const,
-    status: "pending" as const,
-    uploadedBy: "Lisa Wang",
-    uploadedAt: new Date("2024-01-13T16:45:00"),
-    commentsCount: 7,
-    tags: ["hr", "policy", "remote-work"],
-    thumbnail: undefined,
-    version: 1,
-    lastModified: new Date("2024-01-13T16:45:00"),
-    description: "Updated HR policy document outlining remote work guidelines and procedures for all employees.",
-    aiSummary: "This document outlines comprehensive remote work guidelines including eligibility criteria, equipment requirements, communication protocols, and performance evaluation standards for remote employees.",
-    keyInsights: [
-      {
-        type: "deadline" as const,
-        content: "Policy implementation deadline: February 1, 2024",
-        importance: "high" as const
-      },
-      {
-        type: "action" as const,
-        content: "Schedule training sessions for managers",
-        importance: "medium" as const
-      }
-    ],
-    relatedDocuments: [
-      { id: "4", title: "Employee Handbook", type: "PDF" },
-      { id: "5", title: "Remote Work Agreement Template", type: "Word" }
-    ],
-    processingHistory: []
-  },
-  {
-    id: "4",
-    title: "Engineering Specifications - Signal System Upgrade",
-    type: "PDF",
-    size: 5242880, // 5MB
-    department: "Engineering",
-    priority: "high" as const,
-    status: "processing" as const,
-    uploadedBy: "David Chen",
-    uploadedAt: new Date("2024-01-12T09:20:00"),
-    assignedTo: "Robert Kim",
-    commentsCount: 2,
-    tags: ["engineering", "signals", "upgrade", "technical"],
-    thumbnail: undefined,
-    version: 1,
-    lastModified: new Date("2024-01-12T09:20:00"),
-    description: "Detailed engineering specifications for the upcoming signal system upgrade across all metro lines.",
-    aiSummary: "Technical specifications document outlining the complete signal system upgrade including new hardware requirements, software integration, testing procedures, and implementation timeline spanning 18 months.",
-    keyInsights: [
-      {
-        type: "deadline" as const,
-        content: "Phase 1 completion target: March 2024",
-        importance: "high" as const
-      },
-      {
-        type: "risk" as const,
-        content: "Potential service disruption during implementation",
-        importance: "high" as const
-      }
-    ],
-    relatedDocuments: [
-      { id: "6", title: "Signal System Maintenance Log", type: "Excel" },
-      { id: "7", title: "Upgrade Project Timeline", type: "PDF" }
-    ],
-    processingHistory: []
-  },
-  {
-    id: "5",
-    title: "Legal Compliance Checklist - Q1 2024",
-    type: "PDF",
-    size: 768000, // 768KB
-    department: "Legal",
-    priority: "urgent" as const,
-    status: "pending" as const,
-    uploadedBy: "Michael Brown",
-    uploadedAt: new Date("2024-01-11T14:10:00"),
-    commentsCount: 0,
-    tags: ["legal", "compliance", "quarterly"],
-    thumbnail: undefined,
-    version: 1,
-    lastModified: new Date("2024-01-11T14:10:00"),
-    description: "Comprehensive legal compliance checklist covering all regulatory requirements for Q1 2024.",
-    aiSummary: "Legal compliance document detailing all regulatory requirements, deadlines, and action items for Q1 2024. Includes environmental regulations, safety standards, labor laws, and financial reporting requirements.",
-    keyInsights: [
-      {
-        type: "deadline" as const,
-        content: "Environmental impact report due: January 31, 2024",
-        importance: "urgent" as const
-      },
-      {
-        type: "action" as const,
-        content: "Schedule compliance training for all departments",
-        importance: "high" as const
-      }
-    ],
-    relatedDocuments: [],
-    processingHistory: []
-  }
-];
+type DocRow = Tables<'documents'>;
 
 const mockComments = [
   {
@@ -234,6 +43,28 @@ const Documents = () => {
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [showDocumentDetail, setShowDocumentDetail] = useState(false);
+  const [docs, setDocs] = useState<DocRow[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchDocs = async () => {
+      const { data } = await supabase
+        .from('documents')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (mounted) setDocs(data || []);
+    };
+    fetchDocs();
+    const channel = supabase
+      .channel('realtime-docs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, () => fetchDocs())
+      .subscribe();
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleViewDocument = (document: any) => {
     setSelectedDocument(document);
@@ -265,10 +96,30 @@ const Documents = () => {
     // Open assignment modal
   };
 
-  const handleUploadComplete = (files: any[]) => {
-    console.log("Upload complete:", files);
+  const handleUploadComplete = async (results: any[]) => {
     setShowUpload(false);
-    // Refresh document list
+    if (results && results.length > 0) {
+      const latest = results[0];
+      const mapped = {
+        id: latest.id,
+        title: latest.title,
+        type: (latest.file_type || 'File').toUpperCase(),
+        size: 0,
+        department: latest.department,
+        priority: (latest.priority || 'medium') as any,
+        status: (latest.status === 'ready' ? 'completed' : 'processing') as any,
+        uploadedBy: 'You',
+        uploadedAt: new Date(latest.created_at),
+        commentsCount: 0,
+        tags: latest.tags || [],
+        version: 1,
+        lastModified: new Date(latest.updated_at),
+        description: latest.description || '',
+        aiSummary: '',
+      };
+      setSelectedDocument(mapped);
+      setShowDocumentDetail(true);
+    }
   };
 
   const handleAddComment = (comment: string) => {
@@ -352,7 +203,23 @@ const Documents = () => {
 
           <TabsContent value="repository" className="space-y-6">
             <DocumentList
-              documents={mockDocuments}
+              documents={docs.map(d => ({
+                id: d.id,
+                title: d.title,
+                type: (d.file_type || 'File').toString(),
+                size: 0,
+                department: d.department,
+                priority: (d.priority || 'medium') as any,
+                status: (d.status === 'ready' ? 'completed' : d.status === 'processing' ? 'processing' : 'pending') as any,
+                uploadedBy: 'System',
+                uploadedAt: new Date(d.created_at),
+                commentsCount: 0,
+                tags: d.tags || [],
+                version: 1,
+                lastModified: new Date(d.updated_at),
+                aiSummary: d.ai_summary || undefined,
+                keyInsights: (d.ai_key_insights as any) || undefined,
+              }))}
               onViewDocument={handleViewDocument}
               onEditDocument={handleEditDocument}
               onDeleteDocument={handleDeleteDocument}
