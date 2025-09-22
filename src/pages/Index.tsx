@@ -69,6 +69,19 @@ const Index = () => {
           ))}
         </div>
 
+        {/* Welcome Message for Authenticated Users */}
+        <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-semibold text-primary">Welcome to SmartDocFlow</h3>
+              <p className="text-muted-foreground">
+                You're now connected to the intelligent document management system. 
+                Start by uploading documents or exploring your department's workflow.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
