@@ -297,7 +297,7 @@ const Auth = () => {
         </Card>
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>© 2024 Kerala Metro Rail Limited. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Kerala Metro Rail Limited. All rights reserved.</p>
         </div>
       </div>
     </div>

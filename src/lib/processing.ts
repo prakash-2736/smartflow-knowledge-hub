@@ -18,8 +18,12 @@ export async function processAndStoreDocument(args: {
   description?: string;
   tags?: string[];
   userId?: string;
-}) {
+}, options?: { asyncProcess?: boolean }) {
   const { file, title, department, priority, description, tags, userId } = args;
+
+  if (!userId) {
+    throw new Error('You must be signed in to upload documents.');
+  }
 
   const ext = file.name.split('.').pop() || 'bin';
   const timestamp = Date.now();
@@ -49,55 +53,61 @@ export async function processAndStoreDocument(args: {
   if (insertErr || !doc) throw insertErr;
   await addProcessingEvent({ document_id: doc.id, stage: 'uploaded', status: 'completed', message: 'File uploaded to storage' });
 
-  let extractedText = '';
-  try {
-    if (file.type.startsWith('image/')) {
-      await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'in_progress', message: 'OCR started' });
-      const { text } = await ocrImage(file, 'eng');
-      extractedText = text;
-      await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'completed', message: 'OCR completed' });
+  const runProcessing = async () => {
+    let extractedText = '';
+    try {
+      if (file.type.startsWith('image/')) {
+        await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'in_progress', message: 'OCR started' });
+        const { text } = await ocrImage(file, 'eng');
+        extractedText = text;
+        await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'completed', message: 'OCR completed' });
+      }
+    } catch {
+      await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'error', message: 'OCR failed' });
     }
-  } catch {
-    // continue without OCR
-    await addProcessingEvent({ document_id: doc.id, stage: 'ocr', status: 'error', message: 'OCR failed' });
+
+    let summary: string | undefined;
+    let keyInsights: string[] | undefined;
+    let category: string | undefined;
+    let tagsOut: string[] | undefined;
+    try {
+      const baseText = extractedText || `${title}\n${description || ''}`.slice(0, 4000);
+      if (baseText.trim().length) {
+        await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'in_progress', message: 'AI analysis started' });
+        const sum = await summarizeDocumentText(baseText, 'en');
+        summary = sum.summary;
+        keyInsights = sum.keyInsights;
+        const cls = await classifyDocument(baseText);
+        category = cls.category;
+        tagsOut = cls.tags;
+        await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'completed', message: 'AI analysis completed' });
+      }
+    } catch {
+      await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'error', message: 'AI analysis failed' });
+    }
+
+    const routed = applyRoutingRules({ ...doc, category: category || doc.category } as DocumentRow);
+
+    const { data: updated } = await updateDocument(doc.id, {
+      category: category || doc.category,
+      tags: tagsOut && tagsOut.length ? (doc.tags || []).concat(tagsOut).slice(0, 20) : doc.tags,
+      department: routed.department,
+      priority: routed.priority || doc.priority,
+      status: 'ready',
+      description: doc.description,
+      ai_summary: summary || null,
+      ai_key_insights: keyInsights && keyInsights.length ? keyInsights.slice(0, 20) : null,
+    });
+    await addProcessingEvent({ document_id: doc.id, stage: 'routed', status: 'completed', message: `Routed to ${routed.department}` });
+    return { document: updated || doc, summary, keyInsights } as ProcessedResult;
+  };
+
+  if (options?.asyncProcess) {
+    runProcessing();
+    return { document: doc } as ProcessedResult;
   }
 
-  let summary: string | undefined;
-  let keyInsights: string[] | undefined;
-  let category: string | undefined;
-  let tagsOut: string[] | undefined;
-  try {
-    const baseText = extractedText || `${title}\n${description || ''}`.slice(0, 4000);
-    if (baseText.trim().length) {
-      await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'in_progress', message: 'AI analysis started' });
-      const sum = await summarizeDocumentText(baseText, 'en');
-      summary = sum.summary;
-      keyInsights = sum.keyInsights;
-      const cls = await classifyDocument(baseText);
-      category = cls.category;
-      tagsOut = cls.tags;
-      await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'completed', message: 'AI analysis completed' });
-    }
-  } catch {
-    // ignore AI failures
-    await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'error', message: 'AI analysis failed' });
-  }
-
-  const routed = applyRoutingRules({ ...doc, category: category || doc.category } as DocumentRow);
-
-  const { data: updated } = await updateDocument(doc.id, {
-    category: category || doc.category,
-    tags: tagsOut && tagsOut.length ? (doc.tags || []).concat(tagsOut).slice(0, 20) : doc.tags,
-    department: routed.department,
-    priority: routed.priority || doc.priority,
-    status: 'ready',
-    description: doc.description,
-    ai_summary: summary || null,
-    ai_key_insights: keyInsights && keyInsights.length ? keyInsights.slice(0, 20) : null,
-  });
-  await addProcessingEvent({ document_id: doc.id, stage: 'routed', status: 'completed', message: `Routed to ${routed.department}` });
-
-  return { document: updated || doc, summary, keyInsights } as ProcessedResult;
+  return await runProcessing();
 }
 
 

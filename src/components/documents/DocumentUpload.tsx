@@ -155,7 +155,7 @@ export const DocumentUpload = ({
   const realUpload = async (fileEntry: UploadFile) => {
     try {
       updateFileStatus(fileEntry.id, "uploading", 10);
-      const { document, summary } = await processAndStoreDocument({
+      const { document } = await processAndStoreDocument({
         file: fileEntry.file,
         title: metadata.title || fileEntry.file.name,
         department: metadata.department,
@@ -163,10 +163,10 @@ export const DocumentUpload = ({
         description: metadata.description,
         tags: metadata.tags,
         userId: user?.id,
-      });
+      }, { asyncProcess: true });
       updateFileStatus(fileEntry.id, "processing", 80);
       updateFileStatus(fileEntry.id, "completed", 100);
-      toast({ title: "Uploaded", description: `${document.title} processed${summary ? ' with AI summary' : ''}.` });
+      toast({ title: "Uploaded", description: `${document.title} is processing. Results will appear shortly.` });
       return document;
     } catch (e: any) {
       updateFileStatus(fileEntry.id, "error", undefined, e?.message || 'Upload failed');
