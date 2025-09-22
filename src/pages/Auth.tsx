@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileText, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const { user, signIn, signUp } = useAuth();
@@ -25,6 +26,8 @@ const Auth = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   const departments = ['Operations', 'Engineering', 'Finance', 'HR', 'Legal', 'Executive'];
   const roles = ['Station Controller', 'Engineer', 'HR Officer', 'Finance Manager', 'Legal Officer', 'Executive Director', 'Admin'];
@@ -91,6 +94,35 @@ const Auth = () => {
       });
     }
     
+    setLoading(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResetSent(false);
+
+    const redirectUrl = `${window.location.origin}/auth`; // Supabase will redirect here to set new password
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail || email, {
+      redirectTo: redirectUrl,
+    });
+
+    if (error) {
+      setError(error.message);
+      toast({
+        title: "Reset Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setResetSent(true);
+      toast({
+        title: "Reset Email Sent",
+        description: "Check your inbox for password reset instructions.",
+      });
+    }
+
     setLoading(false);
   };
 
@@ -163,6 +195,36 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Signing In...' : 'Sign In'}
                   </Button>
+                </form>
+                <div className="text-right">
+                  <button
+                    className="text-sm text-primary hover:underline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const el = document.getElementById('reset-email');
+                      el?.focus();
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <form onSubmit={handleResetPassword} className="space-y-2">
+                  <Label htmlFor="reset-email">Reset password via email</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="your.email@kmrl.org"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                    />
+                    <Button type="submit" variant="secondary" disabled={loading}>
+                      {loading ? 'Sending...' : 'Send reset'}
+                    </Button>
+                  </div>
+                  {resetSent && (
+                    <p className="text-xs text-muted-foreground">Reset email sent. Please check your inbox.</p>
+                  )}
                 </form>
               </TabsContent>
 

@@ -4,10 +4,13 @@ import { Loading } from '@/components/ui/loading';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  allowedRoles?: string[];
+  allowedDepartments?: string[];
+  redirectTo?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles, allowedDepartments, redirectTo = '/auth' }) => {
+  const { user, loading, hasRole, inDepartment } = useAuth();
 
   if (loading) {
     return (
@@ -18,7 +21,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  if ((allowedRoles && allowedRoles.length && !hasRole(...allowedRoles)) ||
+      (allowedDepartments && allowedDepartments.length && !inDepartment(...allowedDepartments))) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
