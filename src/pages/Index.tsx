@@ -1,33 +1,36 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Upload, Users, BarChart3 } from "lucide-react";
+import { FileText, Upload, Users, BarChart3, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   const quickActions = [
     {
-      title: "Upload Documents",
-      description: "Add new documents to the system",
-      icon: Upload,
-      action: () => console.log("Upload clicked")
-    },
-    {
-      title: "View Documents", 
-      description: "Browse document repository",
-      icon: FileText,
-      action: () => console.log("Documents clicked")
-    },
-    {
-      title: "Department View",
-      description: "Access department-specific content", 
+      title: "Go to Dashboard",
+      description: "View your personalized dashboard",
       icon: Users,
-      action: () => console.log("Departments clicked")
+      action: () => navigate("/dashboard")
     },
     {
-      title: "Analytics",
-      description: "View system analytics and reports",
-      icon: BarChart3, 
-      action: () => console.log("Analytics clicked")
+      title: "View Analytics", 
+      description: "System analytics and reports",
+      icon: BarChart3,
+      action: () => navigate("/analytics")
+    },
+    {
+      title: "Operations Department",
+      description: "Access operations content", 
+      icon: FileText,
+      action: () => navigate("/departments/operations")
+    },
+    {
+      title: "Engineering Department",
+      description: "Access engineering content",
+      icon: Upload, 
+      action: () => navigate("/departments/engineering")
     }
   ];
 
@@ -59,10 +62,11 @@ const Index = () => {
               <CardContent>
                 <Button 
                   onClick={item.action}
-                  className="w-full"
+                  className="w-full group"
                   variant="outline"
                 >
                   Get Started
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </CardContent>
             </Card>

@@ -9,6 +9,11 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
+import OperationsDepartment from "./pages/departments/Operations";
+import EngineeringDepartment from "./pages/departments/Engineering";
+import FinanceDepartment from "./pages/departments/Finance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +30,31 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/operations" element={
+              <ProtectedRoute>
+                <OperationsDepartment />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/engineering" element={
+              <ProtectedRoute>
+                <EngineeringDepartment />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/finance" element={
+              <ProtectedRoute>
+                <FinanceDepartment />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Home, 
   FileText, 
@@ -44,6 +45,7 @@ interface SidebarProps {
 export const Sidebar = ({ className }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(true);
+  const location = useLocation();
 
   return (
     <div className={cn(
@@ -75,21 +77,28 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Main Navigation */}
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-3">
-          {mainNavItems.map((item) => (
-            <Button
-              key={item.title}
-              variant="ghost"
-              className={cn(
-                "w-full justify-start h-10",
-                isCollapsed ? "px-2" : "px-3"
-              )}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {!isCollapsed && (
-                <span className="ml-3 truncate">{item.title}</span>
-              )}
-            </Button>
-          ))}
+          {mainNavItems.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Button
+                key={item.title}
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start h-10",
+                  isCollapsed ? "px-2" : "px-3",
+                  isActive && "bg-primary/10 text-primary"
+                )}
+                asChild
+              >
+                <Link to={item.href}>
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  {!isCollapsed && (
+                    <span className="ml-3 truncate">{item.title}</span>
+                  )}
+                </Link>
+              </Button>
+            );
+          })}
         </nav>
 
         {/* Departments Section */}
@@ -117,16 +126,25 @@ export const Sidebar = ({ className }: SidebarProps) => {
             </CollapsibleTrigger>
             {!isCollapsed && (
               <CollapsibleContent className="space-y-1 mt-1">
-                {departmentItems.map((item) => (
-                  <Button
-                    key={item.title}
-                    variant="ghost"
-                    className="w-full justify-start h-9 pl-6 text-sm"
-                  >
-                    <item.icon className="h-3 w-3 shrink-0" />
-                    <span className="ml-3 truncate">{item.title}</span>
-                  </Button>
-                ))}
+                {departmentItems.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Button
+                      key={item.title}
+                      variant={isActive ? "secondary" : "ghost"}
+                      className={cn(
+                        "w-full justify-start h-9 pl-6 text-sm",
+                        isActive && "bg-primary/10 text-primary"
+                      )}
+                      asChild
+                    >
+                      <Link to={item.href}>
+                        <item.icon className="h-3 w-3 shrink-0" />
+                        <span className="ml-3 truncate">{item.title}</span>
+                      </Link>
+                    </Button>
+                  );
+                })}
               </CollapsibleContent>
             )}
           </Collapsible>
