@@ -17,7 +17,11 @@ import Compliance from "./pages/Compliance";
 import OperationsDepartment from "./pages/departments/Operations";
 import EngineeringDepartment from "./pages/departments/Engineering";
 import FinanceDepartment from "./pages/departments/Finance";
+import HRDepartment from "./pages/departments/HR";
+import LegalDepartment from "./pages/departments/Legal";
+import ExecutiveDepartment from "./pages/departments/Executive";
 import NotFound from "./pages/NotFound";
+import { BackGuard } from "@/components/navigation/BackGuard";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <BackGuard />
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
@@ -73,6 +78,21 @@ const App = () => (
             <Route path="/departments/finance" element={
               <ProtectedRoute>
                 <FinanceDepartment />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/hr" element={
+              <ProtectedRoute>
+                <HRDepartment />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/legal" element={
+              <ProtectedRoute>
+                <LegalDepartment />
+              </ProtectedRoute>
+            } />
+            <Route path="/departments/executive" element={
+              <ProtectedRoute>
+                <ExecutiveDepartment />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={

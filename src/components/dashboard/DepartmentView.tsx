@@ -11,12 +11,15 @@ import {
   TrendingUp,
   Calendar,
   Target,
-  Activity
+  Activity,
+  ArrowLeft,
+  Upload as UploadIcon
 } from "lucide-react";
 import { StatsCard } from "./StatsCard";
 import { DocumentQueue } from "./DocumentQueue";
 import { DepartmentActivityChart } from "../analytics/DepartmentActivityChart";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface DepartmentData {
   name: string;
@@ -101,12 +104,31 @@ export const DepartmentView = ({
   className
 }: DepartmentViewProps) => {
   const { name, displayName, color, teamMembers, metrics, recentActivity } = department;
+  const navigate = useNavigate();
 
   return (
     <div className={cn("space-y-6", className)}>
       {/* Department Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              try {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate('/dashboard');
+                }
+              } catch {
+                navigate('/dashboard');
+              }
+            }}
+            className="mr-1"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div 
             className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg"
             style={{ backgroundColor: color }}
@@ -120,13 +142,18 @@ export const DepartmentView = ({
             </p>
           </div>
         </div>
-        <Badge 
-          variant="outline" 
-          className="px-3 py-1"
-          style={{ borderColor: color, color }}
-        >
-          {name.toUpperCase()}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => navigate('/upload')} variant="outline" className="gap-2">
+            <UploadIcon className="h-4 w-4" /> Upload
+          </Button>
+          <Badge 
+            variant="outline" 
+            className="px-3 py-1"
+            style={{ borderColor: color, color }}
+          >
+            {name.toUpperCase()}
+          </Badge>
+        </div>
       </div>
 
       {/* Metrics Grid */}

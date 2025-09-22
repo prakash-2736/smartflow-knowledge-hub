@@ -115,7 +115,8 @@ const Documents = () => {
         version: 1,
         lastModified: new Date(latest.updated_at),
         description: latest.description || '',
-        aiSummary: '',
+        aiSummary: latest.ai_summary || '',
+        keyInsights: latest.ai_key_insights || [],
       };
       setSelectedDocument(mapped);
       setShowDocumentDetail(true);
