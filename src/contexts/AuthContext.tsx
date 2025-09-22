@@ -49,6 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // Safety timeout to avoid long spinner if network is slow
+    const timeoutId = window.setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
     // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
@@ -56,11 +61,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentUser);
       if (currentUser) {
         await loadOrCreateProfile(currentUser);
+      } else {
+        setProfile(null);
       }
       setLoading(false);
+      window.clearTimeout(timeoutId);
+    }).catch(() => {
+      // On error, stop loading so user can reach /auth
+      setLoading(false);
+      window.clearTimeout(timeoutId);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const loadOrCreateProfile = async (currentUser: User) => {

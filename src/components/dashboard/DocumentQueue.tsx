@@ -62,7 +62,7 @@ export const DocumentQueue = ({
   className
 }: DocumentQueueProps) => {
   const filteredDocuments = department 
-    ? documents.filter(doc => doc.department.toLowerCase() === department.toLowerCase())
+    ? documents.filter(doc => (doc.department || "").toLowerCase() === (department || "").toLowerCase())
     : documents;
 
   const displayDocuments = filteredDocuments.slice(0, maxItems);
@@ -71,7 +71,7 @@ export const DocumentQueue = ({
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const getDepartmentColor = (dept: string) => {
+  const getDepartmentColor = (dept?: string) => {
     const colors = {
       operations: "text-blue-600",
       engineering: "text-green-600", 
@@ -80,7 +80,7 @@ export const DocumentQueue = ({
       legal: "text-orange-600",
       executive: "text-red-600",
     };
-    return colors[dept.toLowerCase() as keyof typeof colors] || "text-gray-600";
+    return colors[(dept || "").toLowerCase() as keyof typeof colors] || "text-gray-600";
   };
 
   return (
