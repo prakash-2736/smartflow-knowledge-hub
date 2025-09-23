@@ -78,10 +78,8 @@ export const ComplianceStatusChart = ({
       <ResponsiveContainer width="100%" height="100%">
         <RadialBarChart cx="50%" cy="50%" innerRadius="20%" outerRadius="80%" data={radialData}>
           <RadialBar
-            minAngle={15}
             label={{ position: "insideStart", fill: "#fff" }}
             background
-            clockWise
             dataKey="value"
           />
           <Tooltip 

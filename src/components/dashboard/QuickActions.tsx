@@ -19,7 +19,7 @@ interface QuickAction {
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   action: () => void;
-  variant?: "default" | "primary" | "outline";
+  variant?: "default" | "secondary" | "outline";
   color?: string;
 }
 
@@ -55,7 +55,7 @@ export const QuickActions = ({
       description: "Add new documents to the system",
       icon: Upload,
       action: () => onUploadDocument?.(),
-      variant: "primary",
+      variant: "secondary",
       color: "bg-primary hover:bg-primary/90"
     },
     {
@@ -133,20 +133,20 @@ export const QuickActions = ({
       variant={action.variant}
       className={cn(
         "h-auto p-4 flex flex-col items-center gap-2 min-h-[100px] transition-all duration-200",
-        action.variant === "primary" && "bg-primary hover:bg-primary/90 text-primary-foreground",
+        action.variant === "secondary" && "bg-secondary hover:bg-secondary/90 text-secondary-foreground",
         action.variant === "outline" && "hover:bg-muted"
       )}
       onClick={action.action}
     >
       <action.icon className={cn(
         "h-6 w-6",
-        action.variant === "primary" ? "text-primary-foreground" : "text-primary"
+        action.variant === "secondary" ? "text-secondary-foreground" : "text-primary"
       )} />
       <div className="text-center">
         <div className="font-medium text-sm">{action.title}</div>
         <div className={cn(
           "text-xs opacity-70 mt-1",
-          action.variant === "primary" ? "text-primary-foreground" : "text-muted-foreground"
+          action.variant === "secondary" ? "text-secondary-foreground" : "text-muted-foreground"
         )}>
           {action.description}
         </div>

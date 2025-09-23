@@ -285,7 +285,7 @@ export const DocumentSearch = ({
                     initialFocus
                     mode="range"
                     defaultMonth={filters.dateRange.from}
-                    selected={filters.dateRange}
+                    selected={filters.dateRange.from && filters.dateRange.to ? { from: filters.dateRange.from, to: filters.dateRange.to } : undefined}
                     onSelect={(range) => setFilters(prev => ({ ...prev, dateRange: range || {} }))}
                     numberOfMonths={2}
                   />

@@ -51,6 +51,7 @@ interface DepartmentData {
     id: string;
     title: string;
     type: string;
+    department: string;
     priority: "low" | "medium" | "high" | "urgent";
     status: "pending" | "in_review" | "approved" | "rejected";
     uploadedBy: string;
