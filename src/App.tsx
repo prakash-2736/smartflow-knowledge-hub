@@ -12,6 +12,7 @@ import Admin from "./pages/Admin";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import Documents from "./pages/Documents";
+import DocumentDetail from "./pages/DocumentDetail";
 import Upload from "./pages/Upload";
 import Compliance from "./pages/Compliance";
 import OperationsDepartment from "./pages/departments/Operations";
@@ -48,6 +49,11 @@ const App = () => (
             <Route path="/analytics" element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/documents/:id" element={
+              <ProtectedRoute>
+                <DocumentDetail />
               </ProtectedRoute>
             } />
             <Route path="/documents" element={

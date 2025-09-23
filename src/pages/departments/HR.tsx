@@ -21,7 +21,7 @@ const HRDepartment = () => {
       { id: "1", type: "document_uploaded" as const, user: "Aisha N", description: "uploaded Policy Update", timestamp: new Date() },
     ],
     documents: [
-      { id: "1", title: "Policy Update - Remote Work", type: "PDF", priority: "high" as const, status: "in_review" as const, uploadedBy: "Aisha N", uploadedAt: new Date(), commentsCount: 2 },
+      { id: "1", title: "Policy Update - Remote Work", type: "PDF", department: "HR", priority: "high" as const, status: "in_review" as const, uploadedBy: "Aisha N", uploadedAt: new Date(), commentsCount: 2 },
     ],
   };
 

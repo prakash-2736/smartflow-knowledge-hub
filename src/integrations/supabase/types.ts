@@ -14,107 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      document_processing_status: {
+        Row: {
+          created_at: string
+          document_id: string
+          id: string
+          message: string | null
+          stage: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          id?: string
+          message?: string | null
+          stage: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          id?: string
+          message?: string | null
+          stage?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_processing_status_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
-          id: string
-          title: string
-          description: string | null
-          ai_summary: string | null
           ai_key_insights: string[] | null
-          source: string | null
-          file_path: string | null
-          file_type: string | null
-          language: string | null
-          department: string
-          category: string | null
-          tags: string[] | null
-          priority: string | null
-          status: string | null
-          created_by: string | null
+          ai_summary: string | null
           assigned_to: string | null
+          category: string | null
           created_at: string
+          created_by: string | null
+          department: string
+          description: string | null
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          language: string | null
+          priority: string
+          source: string
+          status: string
+          tags: string[] | null
+          title: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          ai_summary?: string | null
           ai_key_insights?: string[] | null
-          source?: string | null
-          file_path?: string | null
-          file_type?: string | null
-          language?: string | null
-          department: string
-          category?: string | null
-          tags?: string[] | null
-          priority?: string | null
-          status?: string | null
-          created_by?: string | null
+          ai_summary?: string | null
           assigned_to?: string | null
+          category?: string | null
           created_at?: string
+          created_by?: string | null
+          department: string
+          description?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          language?: string | null
+          priority?: string
+          source?: string
+          status?: string
+          tags?: string[] | null
+          title: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          title?: string
-          description?: string | null
-          ai_summary?: string | null
           ai_key_insights?: string[] | null
-          source?: string | null
-          file_path?: string | null
-          file_type?: string | null
-          language?: string | null
-          department?: string
-          category?: string | null
-          tags?: string[] | null
-          priority?: string | null
-          status?: string | null
-          created_by?: string | null
+          ai_summary?: string | null
           assigned_to?: string | null
+          category?: string | null
           created_at?: string
+          created_by?: string | null
+          department?: string
+          description?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          language?: string | null
+          priority?: string
+          source?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
-      },
-      document_categories: {
-        Row: { id: string; name: string; description: string | null; created_at: string }
-        Insert: { id?: string; name: string; description?: string | null; created_at?: string }
-        Update: { id?: string; name?: string; description?: string | null; created_at?: string }
-        Relationships: []
-      },
-      document_processing_status: {
-        Row: { id: string; document_id: string; stage: string; status: string; message: string | null; created_at: string }
-        Insert: { id?: string; document_id: string; stage: string; status: string; message?: string | null; created_at?: string }
-        Update: { id?: string; document_id?: string; stage?: string; status?: string; message?: string | null; created_at?: string }
-        Relationships: [
-          { foreignKeyName: string; columns: string[]; referencedRelation: "documents"; referencedColumns: string[] }
-        ]
-      },
-      comments: {
-        Row: { id: string; document_id: string; user_id: string | null; body: string; created_at: string }
-        Insert: { id?: string; document_id: string; user_id?: string | null; body: string; created_at?: string }
-        Update: { id?: string; document_id?: string; user_id?: string | null; body?: string; created_at?: string }
-        Relationships: [
-          { foreignKeyName: string; columns: string[]; referencedRelation: "documents"; referencedColumns: string[] }
-        ]
-      },
-      annotations: {
-        Row: { id: string; document_id: string; user_id: string | null; page: number | null; rect: Json | null; content: string | null; created_at: string }
-        Insert: { id?: string; document_id: string; user_id?: string | null; page?: number | null; rect?: Json | null; content?: string | null; created_at?: string }
-        Update: { id?: string; document_id?: string; user_id?: string | null; page?: number | null; rect?: Json | null; content?: string | null; created_at?: string }
-        Relationships: [
-          { foreignKeyName: string; columns: string[]; referencedRelation: "documents"; referencedColumns: string[] }
-        ]
-      },
-      compliance_tracking: {
-        Row: { id: string; document_id: string | null; department: string; title: string; description: string | null; due_date: string; status: string; created_by: string | null; created_at: string; updated_at: string }
-        Insert: { id?: string; document_id?: string | null; department: string; title: string; description?: string | null; due_date: string; status?: string; created_by?: string | null; created_at?: string; updated_at?: string }
-        Update: { id?: string; document_id?: string | null; department?: string; title?: string; description?: string | null; due_date?: string; status?: string; created_by?: string | null; created_at?: string; updated_at?: string }
-        Relationships: [
-          { foreignKeyName: string; columns: string[]; referencedRelation: "documents"; referencedColumns: string[] }
-        ]
-      },
+      }
       profiles: {
         Row: {
           avatar_url: string | null

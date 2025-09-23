@@ -20,7 +20,7 @@ const ExecutiveDepartment = () => {
       { id: "1", type: "comment_added" as const, user: "Executive Director", description: "requested summary on Quarterly Report", timestamp: new Date() },
     ],
     documents: [
-      { id: "1", title: "Quarterly Executive Summary", type: "PDF", priority: "high" as const, status: "approved" as const, uploadedBy: "Executive Director", uploadedAt: new Date(), commentsCount: 0 },
+      { id: "1", title: "Quarterly Executive Summary", type: "PDF", department: "Executive", priority: "high" as const, status: "approved" as const, uploadedBy: "Executive Director", uploadedAt: new Date(), commentsCount: 0 },
     ],
   };
 

@@ -21,7 +21,7 @@ const LegalDepartment = () => {
       { id: "1", type: "document_processed" as const, user: "Priya S", description: "approved Regulatory Circular", timestamp: new Date() },
     ],
     documents: [
-      { id: "1", title: "Regulatory Circular - Safety Standards", type: "PDF", priority: "urgent" as const, status: "in_review" as const, uploadedBy: "Priya S", uploadedAt: new Date(), commentsCount: 3 },
+      { id: "1", title: "Regulatory Circular - Safety Standards", type: "PDF", department: "Legal", priority: "urgent" as const, status: "in_review" as const, uploadedBy: "Priya S", uploadedAt: new Date(), commentsCount: 3 },
     ],
   };
 
