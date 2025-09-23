@@ -1,6 +1,7 @@
 import { uploadDocumentFile, createDocument, updateDocument, type DocumentRow } from '@/integrations/supabase/documents';
 import { ocrImage } from '@/integrations/ocr/tesseract';
 import { summarizeDocumentText, classifyDocument } from '@/integrations/openai/service';
+import { hasExternalSummarizer, summarizeViaExternal } from '@/integrations/summarizer/client';
 import { applyRoutingRules } from '@/lib/workflow';
 import { addProcessingEvent } from '@/integrations/supabase/processing';
 
@@ -74,9 +75,14 @@ export async function processAndStoreDocument(args: {
       const baseText = extractedText || `${title}\n${description || ''}`.slice(0, 4000);
       if (baseText.trim().length) {
         await addProcessingEvent({ document_id: doc.id, stage: 'ai_categorized', status: 'in_progress', message: 'AI analysis started' });
-        const sum = await summarizeDocumentText(baseText, 'en');
-        summary = sum.summary;
-        keyInsights = sum.keyInsights;
+        if (hasExternalSummarizer()) {
+          summary = await summarizeViaExternal(baseText);
+          keyInsights = [];
+        } else {
+          const sum = await summarizeDocumentText(baseText, 'en');
+          summary = sum.summary;
+          keyInsights = sum.keyInsights;
+        }
         const cls = await classifyDocument(baseText);
         category = cls.category;
         tagsOut = cls.tags;

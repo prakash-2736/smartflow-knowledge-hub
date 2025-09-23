@@ -465,7 +465,7 @@ export const DocumentUpload = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select value={metadata.priority} onValueChange={(value: any) => setMetadata(prev => ({ ...prev, priority: value }))}>
@@ -480,9 +480,9 @@ export const DocumentUpload = ({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="assignedTo">Assign To</Label>
                 <Input
                   id="assignedTo"
@@ -491,9 +491,9 @@ export const DocumentUpload = ({
                   placeholder="Enter user name or email"
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
@@ -502,9 +502,9 @@ export const DocumentUpload = ({
                 placeholder="Enter document description"
                 rows={3}
               />
-            </div>
+            </div> */}
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label>Tags</Label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {metadata.tags.map((tag) => (
@@ -513,8 +513,8 @@ export const DocumentUpload = ({
                     <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
                   </Badge>
                 ))}
-              </div>
-              <div className="flex gap-2">
+              </div> */}
+              {/* <div className="flex gap-2">
                 <Input
                   placeholder="Add tag"
                   onKeyDown={(e) => {
@@ -524,8 +524,8 @@ export const DocumentUpload = ({
                       e.currentTarget.value = "";
                     }
                   }}
-                />
-                <Button variant="outline" onClick={() => {
+                /> */}
+                {/* <Button variant="outline" onClick={() => {
                   const input = document.querySelector('input[placeholder="Add tag"]') as HTMLInputElement;
                   if (input) {
                     addTag(input.value);
@@ -534,8 +534,8 @@ export const DocumentUpload = ({
                 }}>
                   <Plus className="h-4 w-4" />
                 </Button>
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
           </CardContent>
         </Card>
       )}
